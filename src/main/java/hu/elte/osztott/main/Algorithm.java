@@ -49,24 +49,22 @@ public class Algorithm {
     }
 
     private void updateCenterOfNodes(Integer centerId, List<Node> nodes, int d) {
-        if (nodes != null && nodes.size() > 0) {
-            for (Node node : nodes) {
-                if (node.getCenter() != null) {
-                    if ((node.getDistanceToCenter() < d)
-                            || (node.getDistanceToCenter() == d && node.getCenter().getId() > centerId)) {
-                        return;
-                    }
-                    cells.get(node.getCenter().getId()).remove(node.getId());
+        for (Node node : nodes) {
+            if (node.getCenter() != null) {
+                if ((node.getDistanceToCenter() < d)
+                        || (node.getDistanceToCenter() == d && node.getCenter().getId() > centerId)) {
+                    continue;
                 }
-                node.setDistanceToCenter(d);
-                node.setCenter(centers.get(centerId));
-                cells.get(centerId).put(node.getId(), node);
-                updateCenterOfNodes(centerId, graph.getNeighbours(centerId), d + 1);
+                cells.get(node.getCenter().getId()).remove(node.getId());
             }
+            node.setDistanceToCenter(d);
+            node.setCenter(centers.get(centerId));
+            cells.get(centerId).put(node.getId(), node);
+            updateCenterOfNodes(centerId, graph.getNeighbours(node.getId()), d + 1);
         }
     }
 
-    private void updateCenters() {
+    private void crateCells() {
         for (Integer centerId : cells.keySet()) {
             updateCenterOfNodes(centerId, graph.getNeighbours(centerId), 1);
         }
@@ -83,7 +81,6 @@ public class Algorithm {
             cells.put(newCenter.getId(), new HashMap<>());
             cells.get(newCenter.getId()).put(newCenter.getId(), newCenter);
         }
-        updateCenters();
     }
 
     private void createClusters() {
@@ -103,7 +100,8 @@ public class Algorithm {
     public void run() {
         System.out.println("Run start");
         init();
-        createCenters();//Also creates the voronoi cells
+        createCenters();
+        crateCells();
         System.out.println("Run complete");
     }
 }
