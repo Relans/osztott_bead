@@ -3,14 +3,18 @@ package hu.elte.osztott.main;
 import hu.elte.osztott.graph.Graph;
 import hu.elte.osztott.graph.Node;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class Algorithm {
     private final int r;
     private final int k;
     Random random = new Random();
     private Graph graph;
-    private Map<Node, List<Node>> centers;
+    private Map<Integer, Node> centers;
+    private Map<Integer, Map<Integer, Node>> cells;
 
     public Algorithm() {
         this.r = 5;
@@ -25,6 +29,7 @@ public class Algorithm {
     private void init() {
         graph = new Graph();
         centers = new HashMap<>();
+        cells = new HashMap<>();
     }
 
     private Node choseRandomNode(int minId, int maxId, boolean checkForCenter) {
@@ -43,24 +48,27 @@ public class Algorithm {
         return newCenter;
     }
 
-    private void updateCenterOfNodes(Node center, List<Node> nodes, int d) {
+    private void updateCenterOfNodes(Integer centerId, List<Node> nodes, int d) {
         if (nodes != null && nodes.size() > 0) {
             for (Node node : nodes) {
-                if (node.getDistanceToCenter() > d || node.getDistanceToCenter() < 0) {
-                    node.setCenter(center);
-                    node.setDistanceToCenter(d);
-                    centers.get(center).add(node);
-                    updateCenterOfNodes(center, graph.getNeighbours(node.getId()), d + 1);
-                } else if (node.getCenter() != null && node.getDistanceToCenter() == d) {
-                    node.setCenter(graph.getNode(Math.min(node.getCenter().getId(), center.getId())));
+                if (node.getCenter() != null) {
+                    if ((node.getDistanceToCenter() < d)
+                            || (node.getDistanceToCenter() == d && node.getCenter().getId() > centerId)) {
+                        return;
+                    }
+                    cells.get(node.getCenter().getId()).remove(node.getId());
                 }
+                node.setDistanceToCenter(d);
+                node.setCenter(centers.get(centerId));
+                cells.get(centerId).put(node.getId(), node);
+                updateCenterOfNodes(centerId, graph.getNeighbours(centerId), d + 1);
             }
         }
     }
 
     private void updateCenters() {
-        for (Node center : centers.keySet()) {
-            updateCenterOfNodes(center, graph.getNeighbours(center.getId()), 1);
+        for (Integer centerId : cells.keySet()) {
+            updateCenterOfNodes(centerId, graph.getNeighbours(centerId), 1);
         }
     }
 
@@ -71,16 +79,31 @@ public class Algorithm {
             Node newCenter = choseRandomNode(minId, maxId, true);
             newCenter.setCenter(newCenter);
             newCenter.setDistanceToCenter(0);
-            centers.put(newCenter, new ArrayList<>());
-            centers.get(newCenter).add(newCenter);
+            centers.put(newCenter.getId(), newCenter);
+            cells.put(newCenter.getId(), new HashMap<>());
+            cells.get(newCenter.getId()).put(newCenter.getId(), newCenter);
         }
         updateCenters();
     }
 
+    private void createClusters() {
+        throw new RuntimeException("createClusters not implemented");
+    }
+
+    /* if we want to implement te Elkin-Neiman algorithm
+    private void createRemoteNodes(){
+
+    }
+
+    private void runElkinNeiman(){
+
+    }
+    */
+
     public void run() {
         System.out.println("Run start");
         init();
-        createCenters();
+        createCenters();//Also creates the voronoi cells
         System.out.println("Run complete");
     }
 }

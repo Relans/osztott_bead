@@ -36,11 +36,13 @@ public class DataService {
         List<String[]> result = new ArrayList<>();
         try {
             final String sql = "SELECT id,honnan,hova FROM vasut";
-            PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+            Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 result.add(new String[]{resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)});
             }
+            connection.close();
         } catch (SQLException e) {
             System.err.println("Hiba a vasútvonalak betöltése közben!");
             e.printStackTrace();

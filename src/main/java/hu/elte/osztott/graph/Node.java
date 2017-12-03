@@ -4,7 +4,7 @@ public class Node {
     private int id;
     private String label;
     private Node center;
-    private int distanceToCenter = -1;
+    private int distanceToCenter = 0;
 
     public Node(int id) {
         this.id = id;
