@@ -113,6 +113,7 @@ public class Algorithm {
             // Dequeue a vertex from queue and print it
             s = queue.poll();
             bfs.add(s);
+
             // Get all adjacent vertices of the dequeued vertex s
             // If a adjacent has not been visited, then mark it
             // visited and enqueue it
