@@ -3,10 +3,7 @@ package hu.elte.osztott.main;
 import hu.elte.osztott.graph.Graph;
 import hu.elte.osztott.graph.Node;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class Algorithm {
     private final int r;
@@ -96,6 +93,41 @@ public class Algorithm {
 
     }
     */
+
+    public List<Node> bfsTree(Node s)
+    {
+        // Mark all the vertices as not visited(By default
+        // set as false)
+        Map <Integer,Boolean> visited = new HashMap<>();
+
+        // Create a queue for BFStree
+        LinkedList<Node> queue = new LinkedList<>();
+        LinkedList<Node> bfs = new LinkedList<>();
+
+        // Mark the current node as visited and enqueue it
+        visited.put(s.getId(),true);
+        queue.add(s);
+
+        while (queue.size() != 0)
+        {
+            // Dequeue a vertex from queue and print it
+            s = queue.poll();
+            bfs.add(s);
+            // Get all adjacent vertices of the dequeued vertex s
+            // If a adjacent has not been visited, then mark it
+            // visited and enqueue it
+           for ( Node neighbour:  graph.getNeighbours(s.getId()) )
+           {
+                int n = neighbour.getId();
+                if (!visited.containsKey(n))
+                {
+                    visited.put(n,true);
+                    queue.add(neighbour);
+                }
+            }
+        }
+        return bfs;
+    }
 
     public void run() {
         System.out.println("Run start");
