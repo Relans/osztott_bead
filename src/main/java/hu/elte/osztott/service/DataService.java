@@ -1,9 +1,12 @@
 package hu.elte.osztott.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class DataService {
 
@@ -37,15 +40,34 @@ public class DataService {
         try {
             final String sql = "SELECT id,honnan,hova FROM vasut";
             Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                result.add(new String[]{resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)});
+            if (connection != null) {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    result.add(new String[]{resultSet.getString(1), resultSet.getString(2), resultSet.getString(3)});
+                }
+                connection.close();
+            } else {
+                return getDataFromResoruces();
             }
-            connection.close();
         } catch (SQLException e) {
             System.err.println("Hiba a vasútvonalak betöltése közben!");
             e.printStackTrace();
+        }
+        return result;
+    }
+
+    private List<String[]> getDataFromResoruces() {
+        List<String[]> result = new ArrayList<>();
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("vonalak.txt");
+             Scanner input = new Scanner(inputStream)) {
+            while (input.hasNext()) {
+                String next = input.next();
+                result.add(next.split(";"));
+            }
+        } catch (IOException err) {
+            System.out.println("Hiba a vonalak.txt fájl olvasásakor");
+            err.printStackTrace();
         }
         return result;
     }
