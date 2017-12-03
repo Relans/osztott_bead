@@ -60,7 +60,7 @@ public class DataService {
     private List<String[]> getDataFromResoruces() {
         List<String[]> result = new ArrayList<>();
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("vonalak.txt");
-             Scanner input = new Scanner(inputStream)) {
+             Scanner input = new Scanner(inputStream, "UTF-8")) {
             while (input.hasNext()) {
                 String next = input.next();
                 result.add(next.split(";"));
