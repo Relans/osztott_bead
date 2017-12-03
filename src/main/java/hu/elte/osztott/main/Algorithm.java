@@ -1,21 +1,25 @@
 package hu.elte.osztott.main;
 
+import hu.elte.osztott.graph.Cluster;
 import hu.elte.osztott.graph.Graph;
 import hu.elte.osztott.graph.Node;
+import hu.elte.osztott.graph.VoronoiCell;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Algorithm {
     private final int r;
     private final int k;
-    Random random = new Random();
+    private Random random = new Random(0);
     private Graph graph;
     private Map<Integer, Node> centers;
-    private Map<Integer, Map<Integer, Node>> cells;
+    private Map<Integer, VoronoiCell> cells;
+    private Map<Integer, List<Node>> bfsTrees;
 
     public Algorithm() {
         this.r = 5;
-        this.k = 2;
+        this.k = 3;
     }
 
     public Algorithm(int r, int k) {
@@ -25,8 +29,9 @@ public class Algorithm {
 
     private void init() {
         graph = new Graph();
-        centers = new HashMap<>();
-        cells = new HashMap<>();
+        centers = new HashMap<>(this.r);
+        cells = new HashMap<>(this.r);
+        bfsTrees = new HashMap<>(this.r);
     }
 
     private Node choseRandomNode(int minId, int maxId, boolean checkForCenter) {
@@ -56,13 +61,15 @@ public class Algorithm {
             }
             node.setDistanceToCenter(d);
             node.setCenter(centers.get(centerId));
-            cells.get(centerId).put(node.getId(), node);
+            cells.get(centerId).addNode(node);
             updateCenterOfNodes(centerId, graph.getNeighbours(node.getId()), d + 1);
         }
     }
 
     private void crateCells() {
-        for (Integer centerId : cells.keySet()) {
+        for (Integer centerId : centers.keySet()) {
+            cells.put(centerId, new VoronoiCell(centers.get(centerId)));
+            cells.get(centerId).setRang(random.nextInt());
             updateCenterOfNodes(centerId, graph.getNeighbours(centerId), 1);
         }
     }
@@ -75,13 +82,85 @@ public class Algorithm {
             newCenter.setCenter(newCenter);
             newCenter.setDistanceToCenter(0);
             centers.put(newCenter.getId(), newCenter);
-            cells.put(newCenter.getId(), new HashMap<>());
-            cells.get(newCenter.getId()).put(newCenter.getId(), newCenter);
         }
     }
 
+    private List<Node> bfsTree(Node s) {
+        Map<Integer, Boolean> visited = new HashMap<>();
+        Node center = s;
+        LinkedList<Node> queue = new LinkedList<>();
+        List<Node> bfs = new ArrayList<>();
+
+        visited.put(s.getId(), true);
+        s.setParent(s);
+        queue.add(s);
+
+        while (queue.size() != 0) {
+            s = queue.poll();
+            bfs.add(s);
+
+            Node finalS = s;
+            graph.getNeighbours(s.getId()).stream().sorted(Comparator.comparingInt(Node::getId)).forEach(neighbour -> {
+                if (cells.get(center.getId()).contains(neighbour)) {
+                    int n = neighbour.getId();
+                    if (!visited.containsKey(n)) {
+                        visited.put(n, true);
+                        neighbour.setParent(finalS);
+                        queue.add(neighbour);
+                    }
+                }
+            });
+        }
+        return bfs;
+    }
+
+    private void createBfsTrees() {
+        for (VoronoiCell voronoiCell : cells.values()) {
+            bfsTrees.put(voronoiCell.getId(), bfsTree(voronoiCell.getCenter()));
+        }
+    }
+
+    private List<Node> getSubTreeForNode(Node node) {
+        List<Node> bfsTree = bfsTrees.get(cells.get(node.getCenter().getId()).getId());
+        if (node.getCenter() == node) {
+            return bfsTree;
+        }
+        List<Node> result = new ArrayList<>(bfsTree.size());
+        for (int i = 0; i < bfsTree.size(); i++) {
+            if (bfsTree.get(i).equals(node)) {
+                result.add(node);
+                IntStream.range(i, bfsTree.size()).filter(j -> result.contains(bfsTree.get(j).getParent())).forEach(j -> result.add(bfsTree.get(j)));
+                return result;
+            }
+        }
+        return result;
+    }
+
     private void createClusters() {
-        throw new RuntimeException("createClusters not implemented");
+        cells.values().forEach(this::setClustersForCell);
+    }
+
+    private void setClustersForCell(VoronoiCell cell) {
+        if (cell != null) {
+            if (cell.getNodes().size() <= k) {
+                cell.addCluster(new Cluster(cell.getCenter(), cell.getNodeList()));
+                return;
+            }
+
+            Map<Node, Cluster> clusterMap = new HashMap<>();
+            for (Node node : cell.getNodes().values()) {
+                if (getSubTreeForNode(node).size() >= k) {
+                    clusterMap.put(node, new Cluster(node));
+                } else {
+                    Node u = node;
+                    while (getSubTreeForNode(u.getParent()).size() < k) {
+                        u = u.getParent();
+                    }
+                    clusterMap.put(u, new Cluster(u, getSubTreeForNode(u)));
+                }
+            }
+            cell.getClusters().addAll(clusterMap.values());
+        }
     }
 
     /* if we want to implement te Elkin-Neiman algorithm
@@ -94,47 +173,13 @@ public class Algorithm {
     }
     */
 
-    public List<Node> bfsTree(Node s)
-    {
-        // Mark all the vertices as not visited(By default
-        // set as false)
-        Map <Integer,Boolean> visited = new HashMap<>();
-
-        // Create a queue for BFStree
-        LinkedList<Node> queue = new LinkedList<>();
-        LinkedList<Node> bfs = new LinkedList<>();
-
-        // Mark the current node as visited and enqueue it
-        visited.put(s.getId(),true);
-        queue.add(s);
-
-        while (queue.size() != 0)
-        {
-            // Dequeue a vertex from queue and print it
-            s = queue.poll();
-            bfs.add(s);
-
-            // Get all adjacent vertices of the dequeued vertex s
-            // If a adjacent has not been visited, then mark it
-            // visited and enqueue it
-           for ( Node neighbour:  graph.getNeighbours(s.getId()) )
-           {
-                int n = neighbour.getId();
-                if (!visited.containsKey(n))
-                {
-                    visited.put(n,true);
-                    queue.add(neighbour);
-                }
-            }
-        }
-        return bfs;
-    }
-
     public void run() {
         System.out.println("Run start");
         init();
         createCenters();
         crateCells();
+        createBfsTrees();
+        createClusters();
         System.out.println("Run complete");
     }
 }

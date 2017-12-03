@@ -5,6 +5,7 @@ public class Node {
     private String label;
     private Node center;
     private int distanceToCenter = 0;
+    private Node parent;
 
     public Node(int id) {
         this.id = id;
@@ -46,6 +47,14 @@ public class Node {
 
     public void setDistanceToCenter(int distanceToCenter) {
         this.distanceToCenter = distanceToCenter;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public void setParent(Node parent) {
+        this.parent = parent;
     }
 
     @Override
