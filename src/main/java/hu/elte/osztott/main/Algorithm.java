@@ -51,6 +51,8 @@ public class Algorithm {
                     node.setDistanceToCenter(d);
                     centers.get(center).add(node);
                     updateCenterOfNodes(center, graph.getNeighbours(node.getId()), d + 1);
+                } else if (node.getCenter() != null && node.getDistanceToCenter() == d) {
+                    node.setCenter(graph.getNode(Math.min(node.getCenter().getId(), center.getId())));
                 }
             }
         }
@@ -60,7 +62,6 @@ public class Algorithm {
         for (Node center : centers.keySet()) {
             updateCenterOfNodes(center, graph.getNeighbours(center.getId()), 1);
         }
-        ;
     }
 
     private void createCenters() {
