@@ -1,7 +1,5 @@
 package hu.elte.osztott.main;
 
-import hu.elte.osztott.graph.Algorithm;
-
 import java.util.Random;
 
 public class Main {
@@ -14,6 +12,6 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         Algorithm alg = new Algorithm();
-        alg.show();
+        alg.run();
     }
 }
