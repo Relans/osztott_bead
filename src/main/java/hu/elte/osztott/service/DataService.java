@@ -2,10 +2,7 @@ package hu.elte.osztott.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -24,7 +21,7 @@ public class DataService {
         connectionProps.put("user", this.userName);
         connectionProps.put("password", this.password);
 
-        /*try {
+        try {
             conn = DriverManager.getConnection(
                     "jdbc:oracle:thin:@//" +
                             this.dbName +
@@ -34,7 +31,7 @@ public class DataService {
         } catch (SQLException e) {
             System.err.println("Hiba a kapcsolat létrehozása közben!");
             e.printStackTrace();
-        }*/
+        }
         return conn;
     }
 

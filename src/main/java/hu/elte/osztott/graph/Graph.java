@@ -14,6 +14,7 @@ public class Graph {
     private DataService service = new DataService();
     private int maxId;
     private int minId;
+    private List<String[]> data;
 
     public Graph() {
         initGraph();
@@ -23,7 +24,7 @@ public class Graph {
         nodes = new HashMap<>();
         nodeList = new ArrayList<>();
         adj = new HashMap<>();
-        List<String[]> data = service.getData();
+        data = service.getData();
 
         Map<String, Node> nodeMap = new HashMap<>();
         for (String[] row : data) {
@@ -60,5 +61,9 @@ public class Graph {
 
     public int getMinId() {
         return minId;
+    }
+
+    public List<String[]> getData() {
+        return data;
     }
 }

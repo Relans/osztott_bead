@@ -1,9 +1,6 @@
 package hu.elte.osztott.main;
 
-import hu.elte.osztott.graph.Cluster;
-import hu.elte.osztott.graph.Graph;
-import hu.elte.osztott.graph.Node;
-import hu.elte.osztott.graph.VoronoiCell;
+import hu.elte.osztott.graph.*;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -16,6 +13,7 @@ public class Algorithm {
     private Map<Integer, Node> centers;
     private Map<Integer, VoronoiCell> cells;
     private Map<Integer, List<Node>> bfsTrees;
+    private List<Edge> edges;
 
     public Algorithm() {
         this.r = 5;
@@ -32,6 +30,7 @@ public class Algorithm {
         centers = new HashMap<>(this.r);
         cells = new HashMap<>(this.r);
         bfsTrees = new HashMap<>(this.r);
+        edges = new ArrayList<>();
     }
 
     private Node choseRandomNode(int minId, int maxId, boolean checkForCenter) {
@@ -173,6 +172,17 @@ public class Algorithm {
     }
     */
 
+    private void createEdges() {
+        for (VoronoiCell cell : cells.values()) {
+            List<Node> nodes = bfsTrees.get(cell.getId());
+            for (Node node : nodes) {
+                if (!node.equals(node.getParent())) {
+                    edges.add(new Edge(edges.size(), node.getParent(), node));
+                }
+            }
+        }
+    }
+
     public void run() {
         System.out.println("Run start");
         init();
@@ -180,6 +190,23 @@ public class Algorithm {
         crateCells();
         createBfsTrees();
         createClusters();
+        createEdges();
         System.out.println("Run complete");
+    }
+
+    public Map<Integer, Node> getCenters() {
+        return centers;
+    }
+
+    public List<Edge> getEdges() {
+        return edges;
+    }
+
+    public Map<Integer, VoronoiCell> getCells() {
+        return cells;
+    }
+
+    public Graph getGraph() {
+        return graph;
     }
 }

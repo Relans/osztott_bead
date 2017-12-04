@@ -1,17 +1,41 @@
 package hu.elte.osztott.main;
 
-import java.util.Random;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.SingleGraph;
 
 public class Main {
-    private static Random generator = new Random(0);
 
-    private static int generateRandom() {
-        double v = generator.nextDouble();
-        return (int) (v*100) % 50;
+    public Main() {
+        Algorithm alg = new Algorithm();
+        alg.run();
+        Graph g = new SingleGraph("Test");
+        g.setStrict(false);
+        g.addAttribute("ui.stylesheet", "url('" + getClass().getClassLoader().getResource("stylesheet") + "')");
+
+        alg.getGraph().getNodes().forEach(node -> {
+            Node n = g.addNode(node.getLabel());
+            n.setAttribute("ui.label", node.getLabel());
+            if (alg.getCenters().containsKey(node.getId())) {
+                n.addAttribute("ui.class", "centerNode");
+            }
+        });
+
+        alg.getEdges().forEach(edge -> {
+            Edge e = g.addEdge(String.valueOf(edge.getStart().getId() + "-" + edge.getEnd().getId()), edge.getStart().getLabel(), edge.getEnd().getLabel());
+            e.addAttribute("ui.class", "tree");
+        });
+
+        alg.getGraph().getData().forEach(edge ->
+                g.addEdge(edge[0], edge[1], edge[2])
+        );
+
+        g.display();
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Algorithm alg = new Algorithm();
-        alg.run();
+        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+        new Main();
     }
 }

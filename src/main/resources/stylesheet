@@ -1,0 +1,20 @@
+node.centerNode {
+    fill-color: red;
+    stroke-mode: plain;
+    stroke-width: 1px;
+    stroke-color: black;
+}
+
+edge {
+    fill-mode: none;
+    size: 0px;
+    stroke-mode: dashes;
+    stroke-width: 1px;
+}
+
+edge.tree {
+    fill-mode: plain;
+    fill-color: black;
+    size: 1px;
+    stroke-mode: none;
+}
