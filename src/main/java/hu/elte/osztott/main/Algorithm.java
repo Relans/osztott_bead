@@ -174,7 +174,12 @@ public class Algorithm {
     private void markRandomCenters() {
         cells.values().forEach(cell -> {
             cell.getCenter().setMarked(getRandom(0, 100) < 25);
-            cell.getNodes().values().forEach(node -> node.setMarked(cell.getCenter().isMarked()));
+            cell.getNodes().values().forEach(node -> {
+                node.setMarked(cell.getCenter().isMarked());
+                if (node.isMarked()) {
+                    node.setStyleClass(node.getStyleClass() + ", marked");
+                }
+            });
         });
     }
 

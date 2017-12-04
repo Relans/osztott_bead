@@ -4,24 +4,53 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 
 public class Main {
+    private Algorithm alg;
 
     public Main() {
-        Algorithm alg = new Algorithm();
+        alg = new Algorithm();
         alg.run();
-        Graph g = new SingleGraph("Test");
-        g.setStrict(false);
-        g.addAttribute("ui.stylesheet", "url('" + getClass().getClassLoader().getResource("stylesheet") + "')");
+        Graph g0 = createGraph("G0", true);
+        addOriginalNodes(g0);
+        addOriginalEdges(g0);
 
+        Graph g1 = createGraph("G1", false);
+        addStyledNodes(g1);
+        addSelectedEdges(g1);
+        addOriginalEdges(g1);
+
+        Graph g2 = createGraph("G2", false);
+        addStyledNodes(g2);
+        addSelectedEdges(g2);
+        display(g2);
+        display(g1);
+        display(g0);
+    }
+
+    private void addOriginalEdges(Graph g) {
+        alg.getGraph().getData().forEach(edge ->
+                g.addEdge(edge[0], edge[1], edge[2])
+        );
+    }
+
+    private void addOriginalNodes(Graph g) {
+        alg.getGraph().getNodes().forEach(node -> {
+            Node n = g.addNode(node.getLabel());
+            n.setAttribute("ui.label", node.getLabel());
+        });
+    }
+
+    private void addStyledNodes(Graph g) {
         alg.getGraph().getNodes().forEach(node -> {
             Node n = g.addNode(node.getLabel());
             n.setAttribute("ui.label", node.getLabel());
             n.addAttribute("ui.class", node.getStyleClass());
         });
+    }
 
+    private void addSelectedEdges(Graph g) {
         alg.getEdges().forEach(edge -> {
             Edge e = g.addEdge(String.valueOf(edge.getStart().getId() + "-" + edge.getEnd().getId()), edge.getStart().getLabel(), edge.getEnd().getLabel());
             if (e != null) {
@@ -32,17 +61,18 @@ public class Main {
                 }
             }
         });
+    }
 
-        alg.getGraph().getData().forEach(edge ->
-                g.addEdge(edge[0], edge[1], edge[2])
-        );
-
-        display(g);
+    private Graph createGraph(String id, boolean original) {
+        Graph g = new SingleGraph(id);
+        g.setStrict(false);
+        if (!original)
+            g.addAttribute("ui.stylesheet", "url('" + getClass().getClassLoader().getResource("stylesheet") + "')");
+        return g;
     }
 
     private void display(Graph graph) {
         Viewer viewer = graph.display();
-        View view = viewer.getDefaultView();
     }
 
     public static void main(String[] args) throws InterruptedException {
