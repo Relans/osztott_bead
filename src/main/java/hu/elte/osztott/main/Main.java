@@ -4,6 +4,8 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.View;
+import org.graphstream.ui.view.Viewer;
 
 public class Main {
 
@@ -31,7 +33,12 @@ public class Main {
                 g.addEdge(edge[0], edge[1], edge[2])
         );
 
-        g.display();
+        display(g);
+    }
+
+    private void display(Graph graph) {
+        Viewer viewer = graph.display();
+        View view = viewer.getDefaultView();
     }
 
     public static void main(String[] args) throws InterruptedException {
