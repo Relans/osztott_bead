@@ -6,6 +6,7 @@ public class Node {
     private Node center;
     private int distanceToCenter = 0;
     private Node parent;
+    private boolean marked = false;
 
     public Node(int id) {
         this.id = id;
@@ -55,6 +56,14 @@ public class Node {
 
     public void setParent(Node parent) {
         this.parent = parent;
+    }
+
+    public boolean isMarked() {
+        return marked;
+    }
+
+    public void setMarked(boolean marked) {
+        this.marked = marked;
     }
 
     @Override

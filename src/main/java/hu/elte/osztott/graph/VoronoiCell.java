@@ -43,6 +43,10 @@ public class VoronoiCell {
         }
     }
 
+    public boolean isMarked() {
+        return center != null && center.isMarked();
+    }
+
     public void addCluster(Cluster cluster) {
         clusters.add(cluster);
     }

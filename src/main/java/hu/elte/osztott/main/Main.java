@@ -22,11 +22,20 @@ public class Main {
             if (alg.getCenters().containsKey(node.getId())) {
                 n.addAttribute("ui.class", "centerNode");
             }
+            if (node.isMarked()) {
+                n.addAttribute("ui.class", "marked");
+            }
         });
 
         alg.getEdges().forEach(edge -> {
             Edge e = g.addEdge(String.valueOf(edge.getStart().getId() + "-" + edge.getEnd().getId()), edge.getStart().getLabel(), edge.getEnd().getLabel());
-            e.addAttribute("ui.class", "tree");
+            if (e != null) {
+                if ("CLUSTERCONNECT".equals(edge.getType())) {
+                    e.addAttribute("ui.class", "connector");
+                } else {
+                    e.addAttribute("ui.class", "tree");
+                }
+            }
         });
 
         alg.getGraph().getData().forEach(edge ->

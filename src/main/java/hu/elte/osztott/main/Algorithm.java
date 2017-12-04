@@ -3,6 +3,7 @@ package hu.elte.osztott.main;
 import hu.elte.osztott.graph.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Algorithm {
@@ -13,6 +14,7 @@ public class Algorithm {
     private Map<Integer, Node> centers;
     private Map<Integer, VoronoiCell> cells;
     private Map<Integer, List<Node>> bfsTrees;
+    private Map<Cluster, List<Cluster>> clusterOfClusters;
     private List<Edge> edges;
 
     public Algorithm() {
@@ -31,14 +33,19 @@ public class Algorithm {
         cells = new HashMap<>(this.r);
         bfsTrees = new HashMap<>(this.r);
         edges = new ArrayList<>();
+        clusterOfClusters = new HashMap<>();
+    }
+
+    private int getRandom(int min, int max) {
+        return random.nextInt(max + 1 - min) + min;
     }
 
     private Node choseRandomNode(int minId, int maxId, boolean checkForCenter) {
-        int randomId = random.nextInt(maxId + 1 - minId) + minId;
+        int randomId = getRandom(minId, maxId);
         int i = minId;
         Node newCenter = graph.getNode(randomId);
         while ((newCenter == null || (checkForCenter && newCenter.equals(newCenter.getCenter()))) && i <= maxId) {
-            randomId = random.nextInt(maxId + 1 - minId) + minId;
+            randomId = getRandom(minId, maxId);
             newCenter = graph.getNode(randomId);
             i++;
         }
@@ -162,15 +169,75 @@ public class Algorithm {
         }
     }
 
-    /* if we want to implement te Elkin-Neiman algorithm
-    private void createRemoteNodes(){
-
+    private void markRandomCenters() {
+        cells.values().forEach(cell -> {
+            cell.getCenter().setMarked(getRandom(0, 100) < 25);
+            cell.getNodes().values().forEach(node -> node.setMarked(cell.getCenter().isMarked()));
+        });
     }
 
-    private void runElkinNeiman(){
-
+    private List<Cluster> getAdjacentCluster(Cluster c) {
+        List<Cluster> result = new ArrayList<>();
+        for (Node node : c.getNodes()) {
+            for (Node neighbour : graph.getNeighbours(node.getId())) {
+                result.addAll(cells.get(neighbour.getCenter().getId()).getClusters()
+                        .stream().filter(cluster -> cluster.getNodes().contains(neighbour)
+                                && !result.contains(cluster)
+                                && !cluster.equals(c)
+                                && !neighbour.getCenter().equals(node.getCenter()))
+                        .collect(Collectors.toList()));
+            }
+        }
+        return result;
     }
-    */
+
+    private void generateClusterOfClusters() {
+        cells.values().stream().filter(VoronoiCell::isMarked).forEach(cell ->
+                cell.getClusters().forEach(cluster ->
+                        clusterOfClusters.put(cluster, getAdjacentCluster(cluster))));
+    }
+
+    private void generateEdgesBetweenClusters() {
+
+        for (Cluster markedCluster : clusterOfClusters.keySet()) {
+            for (Cluster cluster : clusterOfClusters.get(markedCluster)) {
+                for (Node node : cluster.getNodes()) {
+                    Node node1 = graph.getNeighbours(node.getId()).stream().filter(n -> markedCluster.getNodes().contains(n)).findFirst().orElse(null);
+                    if (node1 != null) {
+                        edges.add(new Edge(edges.size(), node, node1, "CLUSTERCONNECT"));
+                        break;
+                    }
+                }
+            }
+        }
+        for (VoronoiCell cell : cells.values()) {
+            for (Cluster cluster : cell.getClusters()) {
+                boolean isAdjToMarked = false;
+                for (List<Cluster> clusters : clusterOfClusters.values()) {
+                    isAdjToMarked = clusters.contains(cluster);
+                    if (isAdjToMarked) {
+                        break;
+                    }
+                }
+                if (!isAdjToMarked) {
+                    for (Cluster cluster1 : getAdjacentCluster(cluster)) {
+                        for (Node node : cluster.getNodes()) {
+                            Node node1 = graph.getNeighbours(node.getId()).stream().filter(n -> cluster1.getNodes().contains(n)).findFirst().orElse(null);
+                            if (node1 != null) {
+                                edges.add(new Edge(edges.size(), node, node1, "CLUSTERCONNECT"));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*
+        * Minden olyan cluster, ami nem szerepel a clusterOfClusters értékei között
+        * minden szomszédos (getAdjacentCluster) clusterhez megkeresni a minimális élet
+        * hozzáadni ezeket az élekhez
+        * */
+    }
 
     private void createEdges() {
         for (VoronoiCell cell : cells.values()) {
@@ -191,6 +258,9 @@ public class Algorithm {
         createBfsTrees();
         createClusters();
         createEdges();
+        markRandomCenters();
+        generateClusterOfClusters();
+        generateEdgesBetweenClusters();
         System.out.println("Run complete");
     }
 
@@ -208,5 +278,9 @@ public class Algorithm {
 
     public Graph getGraph() {
         return graph;
+    }
+
+    public Map<Cluster, List<Cluster>> getClusterOfClusters() {
+        return clusterOfClusters;
     }
 }

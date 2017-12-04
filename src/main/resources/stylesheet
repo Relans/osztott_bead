@@ -5,6 +5,12 @@ node.centerNode {
     stroke-color: black;
 }
 
+node.marked {
+    stroke-mode: plain;
+    stroke-width: 3px;
+    stroke-color: red;
+}
+
 edge {
     fill-mode: none;
     size: 0px;
@@ -15,6 +21,13 @@ edge {
 edge.tree {
     fill-mode: plain;
     fill-color: black;
+    size: 1px;
+    stroke-mode: none;
+}
+
+edge.connector {
+    fill-mode: plain;
+    fill-color: red;
     size: 1px;
     stroke-mode: none;
 }
