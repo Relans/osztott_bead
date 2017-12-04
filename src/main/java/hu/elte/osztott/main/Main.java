@@ -19,12 +19,7 @@ public class Main {
         alg.getGraph().getNodes().forEach(node -> {
             Node n = g.addNode(node.getLabel());
             n.setAttribute("ui.label", node.getLabel());
-            if (alg.getCenters().containsKey(node.getId())) {
-                n.addAttribute("ui.class", "centerNode");
-            }
-            if (node.isMarked()) {
-                n.addAttribute("ui.class", "marked");
-            }
+            n.addAttribute("ui.class", node.getStyleClass());
         });
 
         alg.getEdges().forEach(edge -> {

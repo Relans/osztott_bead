@@ -1,13 +1,26 @@
-node.centerNode {
-    fill-color: red;
+node {
+    fill-color: white;
     stroke-mode: plain;
-    stroke-width: 1px;
+    stroke-width: 2px;
+    stroke-color: black;
+}
+
+node.centerNode {
+    fill-color: black;
+    stroke-mode: plain;
+    stroke-width: 2px;
     stroke-color: black;
 }
 
 node.marked {
+    stroke-mode: dots;
+    stroke-width: 2px;
+    stroke-color: red;
+}
+
+node.singletonCluster {
     stroke-mode: plain;
-    stroke-width: 3px;
+    stroke-width: 2px;
     stroke-color: red;
 }
 

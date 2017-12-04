@@ -87,6 +87,7 @@ public class Algorithm {
             Node newCenter = choseRandomNode(minId, maxId, true);
             newCenter.setCenter(newCenter);
             newCenter.setDistanceToCenter(0);
+            newCenter.setStyleClass("centerNode");
             centers.put(newCenter.getId(), newCenter);
         }
     }
@@ -157,6 +158,7 @@ public class Algorithm {
             for (Node node : cell.getNodes().values()) {
                 if (getSubTreeForNode(node).size() >= k) {
                     clusterMap.put(node, new Cluster(node));
+                    node.setStyleClass(node.getStyleClass() + ", singletonCluster");
                 } else {
                     Node u = node;
                     while (getSubTreeForNode(u.getParent()).size() < k) {

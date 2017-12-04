@@ -7,6 +7,7 @@ public class Node {
     private int distanceToCenter = 0;
     private Node parent;
     private boolean marked = false;
+    private String styleClass = "";
 
     public Node(int id) {
         this.id = id;
@@ -64,6 +65,14 @@ public class Node {
 
     public void setMarked(boolean marked) {
         this.marked = marked;
+    }
+
+    public String getStyleClass() {
+        return styleClass;
+    }
+
+    public void setStyleClass(String styleClass) {
+        this.styleClass = styleClass;
     }
 
     @Override
