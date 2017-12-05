@@ -187,12 +187,13 @@ public class Algorithm {
         List<Cluster> result = new ArrayList<>();
         for (Node node : c.getNodes()) {
             for (Node neighbour : graph.getNeighbours(node.getId())) {
-                result.addAll(cells.get(neighbour.getCenter().getId()).getClusters()
-                        .stream().filter(cluster -> cluster.getNodes().contains(neighbour)
-                                && !result.contains(cluster)
-                                && !cluster.equals(c)
-                                && !neighbour.getCenter().equals(node.getCenter()))
-                        .collect(Collectors.toList()));
+                if (!neighbour.getCenter().equals(node.getCenter())) {
+                    result.addAll(cells.get(neighbour.getCenter().getId()).getClusters()
+                            .stream().filter(cluster -> cluster.getNodes().contains(neighbour)
+                                    && !result.contains(cluster)
+                                    && !cluster.equals(c))
+                            .collect(Collectors.toList()));
+                }
             }
         }
         return result;
@@ -211,7 +212,7 @@ public class Algorithm {
                 for (Node node : cluster.getNodes()) {
                     Node node1 = graph.getNeighbours(node.getId()).stream().filter(n -> markedCluster.getNodes().contains(n)).findFirst().orElse(null);
                     if (node1 != null) {
-                        edges.add(new Edge(edges.size(), node, node1, "CLUSTERCONNECT"));
+                        edges.add(new Edge(edges.size(), node, node1, "MARKEDCONNECT"));
                         break;
                     }
                 }
@@ -239,11 +240,6 @@ public class Algorithm {
                 }
             }
         }
-        /*
-        * Minden olyan cluster, ami nem szerepel a clusterOfClusters értékei között
-        * minden szomszédos (getAdjacentCluster) clusterhez megkeresni a minimális élet
-        * hozzáadni ezeket az élekhez
-        * */
     }
 
     private void createEdges() {

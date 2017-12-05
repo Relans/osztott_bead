@@ -13,9 +13,10 @@ node.centerNode {
 }
 
 node.marked {
+    size: 20px;
     stroke-mode: dots;
     stroke-width: 2px;
-    stroke-color: red;
+    stroke-color: green;
 }
 
 node.singletonCluster {
@@ -38,9 +39,16 @@ edge.tree {
     stroke-mode: none;
 }
 
-edge.connector {
+edge.markedconnector {
     fill-mode: plain;
     fill-color: red;
+    size: 1px;
+    stroke-mode: none;
+}
+
+edge.connector {
+    fill-mode: plain;
+    fill-color: green;
     size: 1px;
     stroke-mode: none;
 }

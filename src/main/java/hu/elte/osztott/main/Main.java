@@ -29,6 +29,11 @@ public class Main {
         display(g0);
     }
 
+    public static void main(String[] args) throws InterruptedException {
+        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+        new Main();
+    }
+
     private void addOriginalEdges(Graph g) {
         alg.getGraph().getData().forEach(edge ->
                 g.addEdge(edge[0], edge[1], edge[2])
@@ -54,7 +59,9 @@ public class Main {
         alg.getEdges().forEach(edge -> {
             Edge e = g.addEdge(String.valueOf(edge.getStart().getId() + "-" + edge.getEnd().getId()), edge.getStart().getLabel(), edge.getEnd().getLabel());
             if (e != null) {
-                if ("CLUSTERCONNECT".equals(edge.getType())) {
+                if ("MARKEDCONNECT".equals(edge.getType())) {
+                    e.addAttribute("ui.class", "markedconnector");
+                } else if ("CLUSTERCONNECT".equals(edge.getType())) {
                     e.addAttribute("ui.class", "connector");
                 } else {
                     e.addAttribute("ui.class", "tree");
@@ -73,10 +80,5 @@ public class Main {
 
     private void display(Graph graph) {
         Viewer viewer = graph.display();
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-        new Main();
     }
 }
